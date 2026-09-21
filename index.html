@@ -1,1 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ 數字極速挑戰 Math Rush</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f8fafc;
+        }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-card {
+            background-color: var(--card);
+            border: 2px solid #334155;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .screen { display: none; }
+        .active { display: block; }
+
+        h1 { color: #818cf8; margin-bottom: 10px; }
+        
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            background: #0f172a;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .timer-bar-container {
+            background: #334155;
+            height: 6px;
+            border-radius: 3px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            background: var(--warning);
+            height: 100%;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+
+        .question {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 20px 0;
+            letter-spacing: 2px;
+        }
+
+        input[type="number"] {
+            background: #0f172a;
+            color: white;
+            border: 2px solid #475569;
+            font-size: 1.8rem;
+            padding: 12px;
+            width: 160px;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            outline: none;
+        }
+
+        input[type="number"]:focus { border-color: var(--primary); }
+
+        /* 隱藏數字輸入框的上下箭頭 */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
+            -webkit-appearance: none; margin: 0;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button:hover { background: #4f46e5; transform: translateY(-1px); }
+        button:active { transform: translateY(1px); }
+
+        /* 教學區域 */
+        .tutorial-box {
+            background: #1e1b4b;
+            border: 2px solid #4338ca;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .tutorial-header {
+            color: var(--danger);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .dot-grid {
+            display: grid;
+            gap: 5px;
+            margin: 15px auto;
+            justify-content: center;
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .dot { width: 14px; height: 14px; background: #6366f1; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <!-- 主畫面 -->
+        <div id="start-screen" class="screen active">
+            <h1>⚡ 數字極速挑戰</h1>
+            <p style="color: #94a3b8;">在時間耗盡前答對問題！答錯時將會開啟視覺化教學。</p>
+            <button onclick="startGame()">開始遊戲</button>
+        </div>
+
+        <!-- 遊戲中畫面 -->
+        <div id="game-screen" class="screen">
+            <div class="hud">
+                <span>得分: <span id="score" style="color:var(--success);">0</span></span>
+                <span>等級: <span id="level" style="color:var(--primary);">1</span></span>
+            </div>
+            <div class="timer-bar-container">
+                <div id="timer-bar" class="timer-bar"></div>
+            </div>
+            <div class="question" id="question-text">0 × 0</div>
+            <input type="number" id="answer-input" placeholder="?" autocomplete="off" onkeyup="handleKeyUp(event)">
+            <button onclick="submitAnswer()">送出答案</button>
+
+            <!-- 答錯時的教學板 -->
+            <div id="tutorial-area" style="display: none;">
+                <div class="tutorial-box">
+                    <div class="tutorial-header">💡 答錯了，我們來學一下：</div>
+                    <p id="tutorial-desc" style="line-height: 1.5; font-size: 0.95rem;"></p>
+                    <div class="dot-grid" id="dot-grid"></div>
+                    <button style="background: var(--success);" onclick="nextQuestion()">懂了，下一題！</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 遊戲結束畫面 -->
+        <div id="game-over-screen" class="screen">
+            <h1>🏆 遊戲結束！</h1>
+            <p style="color: #94a3b8;">太棒了！你展現了優秀的數學潛力。</p>
+            <h2 style="font-size: 2rem; margin: 20px 0;">最終得分: <span id="final-score" style="color:var(--success);">0</span></h2>
+            <button onclick="resetGame()">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        let game = {
+            score: 0,
+            level: 1,
+            num1: 0,
+            num2: 0,
+            ans: 0,
+            timeLeft: 100,
+            timerInterval: null,
+            isFrozen: false
+        };
+
+        const SECONDS_PER_QUESTION = 15;
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function startGame() {
+            game.score = 0;
+            game.level = 1;
+            showScreen('game-screen');
+            generateNewQuestion();
+        }
+
+        function generateNewQuestion() {
+            game.isFrozen = false;
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+            document.getElementById('tutorial-area').style.display = 'none';
+            
+            // 根據等級自動調整數字難度
+            let maxRange = game.level + 3; 
+            game.num1 = Math.floor(Math.random() * maxRange) + 2;
+            game.num2 = Math.floor(Math.random() * maxRange) + 2;
+            game.ans = game.num1 * game.num2;
+
+            document.getElementById('question-text').innerText = `${game.num1} × ${game.num2}`;
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(game.timerInterval);
+            game.timeLeft = 100;
+            document.getElementById('timer-bar').style.width = '100%';
+            document.getElementById('timer-bar').style.background = 'var(--warning)';
+
+            game.timerInterval = setInterval(() => {
+                if (game.isFrozen) return;
+                
+                game.timeLeft -= (100 / (SECONDS_PER_QUESTION * 10));
+                document.getElementById('timer-bar').style.width = `${game.timeLeft}%`;
+
+                if (game.timeLeft <= 30) {
+                    document.getElementById('timer-bar').style.background = 'var(--danger)';
+                }
+
+                if (game.timeLeft <= 0) {
+                    clearInterval(game.timerInterval);
+                    triggerFailure("時間到！");
+                }
+            }, 100);
+        }
+
+        function handleKeyUp(e) {
+            if (e.key === 'Enter') submitAnswer();
+        }
+
+        function submitAnswer() {
+            if (game.isFrozen) return;
+
+            const userAns = parseInt(document.getElementById('answer-input').value);
+            if (isNaN(userAns)) return;
+
+            if (userAns === game.ans) {
+                clearInterval(game.timerInterval);
+                game.score += 10;
+                game.level = Math.floor(game.score / 30) + 1; // 每答對3題升一級
+                
+                document.getElementById('score').innerText = game.score;
+                document.getElementById('level').innerText = game.level;
+
+                if (game.level > 6) {
+                    endGame();
+                } else {
+                    generateNewQuestion();
+                }
+            } else {
+                clearInterval(game.timerInterval);
+                triggerFailure("答案不正確！");
+            }
+        }
+
+        function triggerFailure(reason) {
+            game.isFrozen = true;
+            document.getElementById('answer-input').disabled = true;
+
+            // 建立圖形化教學
+            document.getElementById('tutorial-desc').innerHTML = `
+                <b>${game.num1} × ${game.num2}</b> 代表有 <b>${game.num1} 排</b> 圓點，而每排都有 <b>${game.num2} 個</b>。<br>
+                將它們全部數完，總共會有 <b>${game.ans}</b> 個點點喔！
+            `;
+
+            const grid = document.getElementById('dot-grid');
+            grid.innerHTML = '';
+            grid.style.gridTemplateRows = `repeat(${game.num1}, 14px)`;
+            grid.style.gridTemplateColumns = `repeat(${game.num2}, 14px)`;
+
+            for (let i = 0; i < game.num1 * game.num2; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                grid.appendChild(dot);
+            }
+
+            document.getElementById('tutorial-area').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            // 如果玩家的分數夠高，可以繼續；如果想改成答錯就結束，可以在這裡調用 endGame()
 
