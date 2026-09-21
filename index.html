@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌐 有向數極速挑戰 Directed Number Quest</title>
+    <title>🌐 有向數挑戰 Directed Number Quest</title>
     <style>
         :root {
             --primary: #3b82f6;
@@ -14,171 +14,49 @@
             --card: #1e293b;
             --text: #f8fafc;
         }
-
-        * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-
+        * { box-sizing: border-box; font-family: sans-serif; }
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
+            background-color: var(--bg); color: var(--text);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
         }
-
         .game-card {
-            background-color: var(--card);
-            border: 2px solid #334155;
-            border-radius: 20px;
-            padding: 30px;
-            width: 100%;
-            max-width: 520px;
-            text-align: center;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            background-color: var(--card); border: 2px solid #334155;
+            border-radius: 20px; padding: 30px; width: 100%; max-width: 520px; text-align: center;
         }
-
         .screen { display: none; }
         .active { display: block; }
-
-        h1 { color: #60a5fa; margin-bottom: 10px; }
-        
+        h1 { color: #60a5fa; }
         .hud {
-            display: flex;
-            justify-content: space-between;
-            background: #0f172a;
-            padding: 10px 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
+            display: flex; justify-content: space-between; background: #0f172a;
+            padding: 10px 15px; border-radius: 10px; margin-bottom: 20px;
         }
-
-        .timer-bar-container {
-            background: #334155;
-            height: 6px;
-            border-radius: 3px;
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-
-        .timer-bar {
-            background: var(--warning);
-            height: 100%;
-            width: 100%;
-            transition: width 0.1s linear;
-        }
-
-        .question {
-            font-size: 3rem;
-            font-weight: bold;
-            margin: 20px 0;
-            letter-spacing: 1px;
-        }
-
+        .timer-bar-container { background: #334155; height: 6px; border-radius: 3px; margin-bottom: 25px; overflow: hidden; }
+        .timer-bar { background: var(--warning); height: 100%; width: 100%; transition: width 0.1s linear; }
+        .question { font-size: 3rem; font-weight: bold; margin: 20px 0; }
         input[type="text"] {
-            background: #0f172a;
-            color: white;
-            border: 2px solid #475569;
-            font-size: 1.8rem;
-            padding: 12px;
-            width: 160px;
-            text-align: center;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            outline: none;
+            background: #0f172a; color: white; border: 2px solid #475569;
+            font-size: 1.8rem; padding: 12px; width: 160px; text-align: center; border-radius: 12px; margin-bottom: 20px; outline: none;
         }
-
-        input[type="text"]:focus { border-color: var(--primary); }
-
         button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s, background 0.2s;
+            background: var(--primary); color: white; border: none; padding: 14px 28px;
+            font-size: 1.1rem; font-weight: bold; border-radius: 12px; cursor: pointer; width: 100%;
         }
-
-        button:hover { background: #2563eb; transform: translateY(-1px); }
-        button:active { transform: translateY(1px); }
-
-        /* 有向數教學區域 */
-        .tutorial-box {
-            background: #172554;
-            border: 2px solid #1d4ed8;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: left;
-        }
-
-        .tutorial-header {
-            color: #fca5a5;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        /* 數線樣式 */
-        .number-line-container {
-            margin: 30px 0 20px 0;
-            padding: 10px;
-            background: #0f172a;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-
-        .number-line {
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-            height: 40px;
-            padding: 0 10px;
-        }
-
-        .line-axis {
-            position: absolute;
-            top: 15px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: #94a3b8;
-        }
-
-        .line-axis::before {
-            content: '◀'; position: absolute; left: -2px; top: -7px; color: #94a3b8; font-size: 0.8rem;
-        }
-        .line-axis::after {
-            content: '▶'; position: absolute; right: -2px; top: -7px; color: #94a3b8; font-size: 0.8rem;
-        }
-
+        .tutorial-box { background: #172554; border: 2px solid #1d4ed8; border-radius: 12px; padding: 20px; margin-top: 20px; text-align: left; }
+        .number-line-container { margin: 20px 0; padding: 15px 10px; background: #0f172a; border-radius: 8px; overflow-x: auto; white-space: nowrap; }
+        .number-line { position: relative; display: inline-block; padding: 10px 0; min-width: 100%; text-align: center; }
+        .line-axis { position: absolute; top: 22px; left: 0; right: 0; height: 2px; background: #94a3b8; }
         .line-node {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #64748b;
-            z-index: 1;
-            width: 24px;
+            display: inline-block; width: 35px; text-align: center; position: relative; font-size: 0.8rem; color: #64748b; margin: 0 2px;
         }
-
         .line-node::before {
-            content: ''; width: 6px; height: 6px; background: #475569; border-radius: 50%; margin-top: 13px; margin-bottom: 5px;
+            content: ''; display: block; width: 6px; height: 6px; background: #475569; border-radius: 50%; margin: 5px auto;
         }
-
-        /* 數線上的標記點 */
         .line-node.start-point { color: #f59e0b; font-weight: bold; }
         .line-node.start-point::before { background: #f59e0b; transform: scale(1.5); }
-        
         .line-node.end-point { color: #10b981; font-weight: bold; }
         .line-node.end-point::before { background: #10b981; transform: scale(1.5); }
-
-        .line-node.zero-point { color: #ef4444; }
+        .line-node.zero-point { color: #ef4444; font-weight: bold; }
         .line-node.zero-point::before { background: #ef4444; }
     </style>
 </head>
@@ -188,7 +66,7 @@
         <!-- 主畫面 -->
         <div id="start-screen" class="screen active">
             <h1>🌐 有向數思維挑戰</h1>
-            <p style="color: #94a3b8; line-height: 1.6;">挑戰正負數的加、減、乘、除！<br>請記得輸入負號「-」，所有答案皆為<b>整數</b>。</p>
+            <p style="color: #94a3b8;">挑戰正負數的加減乘除！答案皆為<b>整數</b>。</p>
             <button onclick="startGame()">開始挑戰</button>
         </div>
 
@@ -205,17 +83,15 @@
             <input type="text" id="answer-input" placeholder="?" autocomplete="off" onkeyup="handleKeyUp(event)">
             <button onclick="submitAnswer()">送出答案</button>
 
-            <!-- 答錯時的數線教學板 -->
+            <!-- 答錯教學板 -->
             <div id="tutorial-area" style="display: none;">
                 <div class="tutorial-box">
-                    <div class="tutorial-header">💡 觀念解析：</div>
+                    <div style="color:#fca5a5; font-weight:bold; margin-bottom:10px;">💡 觀念解析：</div>
                     <p id="tutorial-desc" style="line-height: 1.5; font-size: 0.95rem; margin: 0;"></p>
                     
-                    <!-- 數線視覺化 -->
                     <div class="number-line-container" id="number-line-section">
                         <div class="number-line" id="number-line-ui">
                             <div class="line-axis"></div>
-                            <!-- 動態生成節點 -->
                         </div>
                     </div>
                     
@@ -235,32 +111,27 @@
 
     <script>
         let game = {
-            score: 0,
-            level: 1,
-            num1: 0,
-            num2: 0,
-            op: '',
-            ans: 0,
-            timeLeft: 100,
-            timerInterval: null,
-            isFrozen: false
+            score: 0, level: 1, num1: 0, num2: 0, op: '', ans: 0,
+            timeLeft: 100, timerInterval: null, isFrozen: false
         };
 
         const SECONDS_PER_QUESTION = 20;
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            const el = document.getElementById(id);
+            if(el) el.classList.add('active');
         }
 
         function startGame() {
             game.score = 0;
             game.level = 1;
+            document.getElementById('score').innerText = "0";
+            document.getElementById('level').innerText = "1";
             showScreen('game-screen');
             generateNewQuestion();
         }
 
-        // 格式化輸出有向數的文字表示，例如 (-5) 或 (+3)
         function fmt(num) {
             return num < 0 ? `( ${num} )` : `( +${num} )`;
         }
@@ -272,39 +143,90 @@
             document.getElementById('answer-input').focus();
             document.getElementById('tutorial-area').style.display = 'none';
             
-            // 根據等級決定運算規則，保證答案為整數
             const ops = ['+', '-'];
             if (game.level >= 2) ops.push('*');
             if (game.level >= 3) ops.push('/');
             
             game.op = ops[Math.floor(Math.random() * ops.length)];
+            let maxRange = game.level + 4;
             
-            let maxRange = game.level + 4; // 隨等級提高擴大數字範圍
-            
-            // 隨機生成包含正負的非零數
             let n1 = (Math.floor(Math.random() * maxRange) + 1) * (Math.random() < 0.5 ? 1 : -1);
             let n2 = (Math.floor(Math.random() * maxRange) + 1) * (Math.random() < 0.5 ? 1 : -1);
 
             if (game.op === '+') {
-                game.num1 = n1; game.num2 = n2;
-                game.ans = n1 + n2;
+                game.num1 = n1; game.num2 = n2; game.ans = n1 + n2;
             } else if (game.op === '-') {
-                game.num1 = n1; game.num2 = n2;
-                game.ans = n1 - n2;
+                game.num1 = n1; game.num2 = n2; game.ans = n1 - n2;
             } else if (game.op === '*') {
-                game.num1 = n1; game.num2 = n2;
-                game.ans = n1 * n2;
+                game.num1 = n1; game.num2 = n2; game.ans = n1 * n2;
             } else if (game.op === '/') {
-                // 為了確保除法答案必為整數：先生成商(n2)與除數(n1)，再相乘得到被除數(num1)
-                let quotient = n2; 
-                let divisor = n1;
-                game.num1 = divisor * quotient;
-                game.num2 = divisor;
-                game.ans = quotient;
+                game.num1 = n1 * n2; game.num2 = n1; game.ans = n2;
             }
 
-            // 轉換顯示符號
             let opStr = game.op;
             if (game.op === '*') opStr = '×';
             if (game.op === '/') opStr = '÷';
 
+            document.getElementById('question-text').innerText = `${fmt(game.num1)} ${opStr} ${fmt(game.num2)}`;
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(game.timerInterval);
+            game.timeLeft = 100;
+            document.getElementById('timer-bar').style.width = '100%';
+            document.getElementById('timer-bar').style.background = 'var(--warning)';
+
+            game.timerInterval = setInterval(() => {
+                if (game.isFrozen) return;
+                game.timeLeft -= (100 / (SECONDS_PER_QUESTION * 10));
+                document.getElementById('timer-bar').style.width = `${game.timeLeft}%`;
+
+                if (game.timeLeft <= 30) {
+                    document.getElementById('timer-bar').style.background = 'var(--danger)';
+                }
+                if (game.timeLeft <= 0) {
+                    clearInterval(game.timerInterval);
+                    triggerFailure();
+                }
+            }, 100);
+        }
+
+        function handleKeyUp(e) {
+            if (e.key === 'Enter') submitAnswer();
+        }
+
+        function submitAnswer() {
+            if (game.isFrozen) return;
+            const val = document.getElementById('answer-input').value.trim();
+            const userAns = parseInt(val);
+            if (isNaN(userAns)) return;
+
+            if (userAns === game.ans) {
+                clearInterval(game.timerInterval);
+                game.score += 10;
+                game.level = Math.floor(game.score / 30) + 1;
+                
+                document.getElementById('score').innerText = game.score;
+                document.getElementById('level').innerText = game.level;
+
+                if (game.level > 5) {
+                    endGame();
+                } else {
+                    generateNewQuestion();
+                }
+            } else {
+                clearInterval(game.timerInterval);
+                triggerFailure();
+            }
+        }
+
+        function triggerFailure() {
+            game.isFrozen = true;
+            document.getElementById('answer-input').disabled = true;
+
+            let desc = '';
+            let showLine = false;
+
+            if (game.op === '+' || game.op === '-') {
+                showLine = true;
