@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ 數字極速挑戰 Math Rush</title>
+    <title>🌐 有向數極速挑戰 Directed Number Quest</title>
     <style>
         :root {
-            --primary: #6366f1;
+            --primary: #3b82f6;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
@@ -34,7 +34,7 @@
             border-radius: 20px;
             padding: 30px;
             width: 100%;
-            max-width: 480px;
+            max-width: 520px;
             text-align: center;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
         }
@@ -42,7 +42,7 @@
         .screen { display: none; }
         .active { display: block; }
 
-        h1 { color: #818cf8; margin-bottom: 10px; }
+        h1 { color: #60a5fa; margin-bottom: 10px; }
         
         .hud {
             display: flex;
@@ -70,13 +70,13 @@
         }
 
         .question {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: bold;
             margin: 20px 0;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
-        input[type="number"] {
+        input[type="text"] {
             background: #0f172a;
             color: white;
             border: 2px solid #475569;
@@ -89,12 +89,7 @@
             outline: none;
         }
 
-        input[type="number"]:focus { border-color: var(--primary); }
-
-        /* 隱藏數字輸入框的上下箭頭 */
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button {
-            -webkit-appearance: none; margin: 0;
-        }
+        input[type="text"]:focus { border-color: var(--primary); }
 
         button {
             background: var(--primary);
@@ -109,13 +104,13 @@
             transition: transform 0.1s, background 0.2s;
         }
 
-        button:hover { background: #4f46e5; transform: translateY(-1px); }
+        button:hover { background: #2563eb; transform: translateY(-1px); }
         button:active { transform: translateY(1px); }
 
-        /* 教學區域 */
+        /* 有向數教學區域 */
         .tutorial-box {
-            background: #1e1b4b;
-            border: 2px solid #4338ca;
+            background: #172554;
+            border: 2px solid #1d4ed8;
             border-radius: 12px;
             padding: 20px;
             margin-top: 20px;
@@ -123,22 +118,68 @@
         }
 
         .tutorial-header {
-            color: var(--danger);
+            color: #fca5a5;
             font-weight: bold;
             margin-bottom: 10px;
         }
 
-        .dot-grid {
-            display: grid;
-            gap: 5px;
-            margin: 15px auto;
-            justify-content: center;
+        /* 數線樣式 */
+        .number-line-container {
+            margin: 30px 0 20px 0;
+            padding: 10px;
             background: #0f172a;
-            padding: 15px;
             border-radius: 8px;
+            overflow-x: auto;
         }
 
-        .dot { width: 14px; height: 14px; background: #6366f1; border-radius: 50%; }
+        .number-line {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            height: 40px;
+            padding: 0 10px;
+        }
+
+        .line-axis {
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #94a3b8;
+        }
+
+        .line-axis::before {
+            content: '◀'; position: absolute; left: -2px; top: -7px; color: #94a3b8; font-size: 0.8rem;
+        }
+        .line-axis::after {
+            content: '▶'; position: absolute; right: -2px; top: -7px; color: #94a3b8; font-size: 0.8rem;
+        }
+
+        .line-node {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #64748b;
+            z-index: 1;
+            width: 24px;
+        }
+
+        .line-node::before {
+            content: ''; width: 6px; height: 6px; background: #475569; border-radius: 50%; margin-top: 13px; margin-bottom: 5px;
+        }
+
+        /* 數線上的標記點 */
+        .line-node.start-point { color: #f59e0b; font-weight: bold; }
+        .line-node.start-point::before { background: #f59e0b; transform: scale(1.5); }
+        
+        .line-node.end-point { color: #10b981; font-weight: bold; }
+        .line-node.end-point::before { background: #10b981; transform: scale(1.5); }
+
+        .line-node.zero-point { color: #ef4444; }
+        .line-node.zero-point::before { background: #ef4444; }
     </style>
 </head>
 <body>
@@ -146,9 +187,9 @@
     <div class="game-card">
         <!-- 主畫面 -->
         <div id="start-screen" class="screen active">
-            <h1>⚡ 數字極速挑戰</h1>
-            <p style="color: #94a3b8;">在時間耗盡前答對問題！答錯時將會開啟視覺化教學。</p>
-            <button onclick="startGame()">開始遊戲</button>
+            <h1>🌐 有向數思維挑戰</h1>
+            <p style="color: #94a3b8; line-height: 1.6;">挑戰正負數的加、減、乘、除！<br>請記得輸入負號「-」，所有答案皆為<b>整數</b>。</p>
+            <button onclick="startGame()">開始挑戰</button>
         </div>
 
         <!-- 遊戲中畫面 -->
@@ -160,25 +201,33 @@
             <div class="timer-bar-container">
                 <div id="timer-bar" class="timer-bar"></div>
             </div>
-            <div class="question" id="question-text">0 × 0</div>
-            <input type="number" id="answer-input" placeholder="?" autocomplete="off" onkeyup="handleKeyUp(event)">
+            <div class="question" id="question-text">( -3 ) + ( +5 )</div>
+            <input type="text" id="answer-input" placeholder="?" autocomplete="off" onkeyup="handleKeyUp(event)">
             <button onclick="submitAnswer()">送出答案</button>
 
-            <!-- 答錯時的教學板 -->
+            <!-- 答錯時的數線教學板 -->
             <div id="tutorial-area" style="display: none;">
                 <div class="tutorial-box">
-                    <div class="tutorial-header">💡 答錯了，我們來學一下：</div>
-                    <p id="tutorial-desc" style="line-height: 1.5; font-size: 0.95rem;"></p>
-                    <div class="dot-grid" id="dot-grid"></div>
-                    <button style="background: var(--success);" onclick="nextQuestion()">懂了，下一題！</button>
+                    <div class="tutorial-header">💡 觀念解析：</div>
+                    <p id="tutorial-desc" style="line-height: 1.5; font-size: 0.95rem; margin: 0;"></p>
+                    
+                    <!-- 數線視覺化 -->
+                    <div class="number-line-container" id="number-line-section">
+                        <div class="number-line" id="number-line-ui">
+                            <div class="line-axis"></div>
+                            <!-- 動態生成節點 -->
+                        </div>
+                    </div>
+                    
+                    <button style="background: var(--success); margin-top: 10px;" onclick="nextQuestion()">懂了，下一題！</button>
                 </div>
             </div>
         </div>
 
         <!-- 遊戲結束畫面 -->
         <div id="game-over-screen" class="screen">
-            <h1>🏆 遊戲結束！</h1>
-            <p style="color: #94a3b8;">太棒了！你展現了優秀的數學潛力。</p>
+            <h1>🏆 挑戰結束！</h1>
+            <p style="color: #94a3b8;">成功掌握有向數的正負邏輯！</p>
             <h2 style="font-size: 2rem; margin: 20px 0;">最終得分: <span id="final-score" style="color:var(--success);">0</span></h2>
             <button onclick="resetGame()">再玩一次</button>
         </div>
@@ -190,13 +239,14 @@
             level: 1,
             num1: 0,
             num2: 0,
+            op: '',
             ans: 0,
             timeLeft: 100,
             timerInterval: null,
             isFrozen: false
         };
 
-        const SECONDS_PER_QUESTION = 15;
+        const SECONDS_PER_QUESTION = 20;
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -210,6 +260,11 @@
             generateNewQuestion();
         }
 
+        // 格式化輸出有向數的文字表示，例如 (-5) 或 (+3)
+        function fmt(num) {
+            return num < 0 ? `( ${num} )` : `( +${num} )`;
+        }
+
         function generateNewQuestion() {
             game.isFrozen = false;
             document.getElementById('answer-input').disabled = false;
@@ -217,92 +272,39 @@
             document.getElementById('answer-input').focus();
             document.getElementById('tutorial-area').style.display = 'none';
             
-            // 根據等級自動調整數字難度
-            let maxRange = game.level + 3; 
-            game.num1 = Math.floor(Math.random() * maxRange) + 2;
-            game.num2 = Math.floor(Math.random() * maxRange) + 2;
-            game.ans = game.num1 * game.num2;
+            // 根據等級決定運算規則，保證答案為整數
+            const ops = ['+', '-'];
+            if (game.level >= 2) ops.push('*');
+            if (game.level >= 3) ops.push('/');
+            
+            game.op = ops[Math.floor(Math.random() * ops.length)];
+            
+            let maxRange = game.level + 4; // 隨等級提高擴大數字範圍
+            
+            // 隨機生成包含正負的非零數
+            let n1 = (Math.floor(Math.random() * maxRange) + 1) * (Math.random() < 0.5 ? 1 : -1);
+            let n2 = (Math.floor(Math.random() * maxRange) + 1) * (Math.random() < 0.5 ? 1 : -1);
 
-            document.getElementById('question-text').innerText = `${game.num1} × ${game.num2}`;
-            startTimer();
-        }
-
-        function startTimer() {
-            clearInterval(game.timerInterval);
-            game.timeLeft = 100;
-            document.getElementById('timer-bar').style.width = '100%';
-            document.getElementById('timer-bar').style.background = 'var(--warning)';
-
-            game.timerInterval = setInterval(() => {
-                if (game.isFrozen) return;
-                
-                game.timeLeft -= (100 / (SECONDS_PER_QUESTION * 10));
-                document.getElementById('timer-bar').style.width = `${game.timeLeft}%`;
-
-                if (game.timeLeft <= 30) {
-                    document.getElementById('timer-bar').style.background = 'var(--danger)';
-                }
-
-                if (game.timeLeft <= 0) {
-                    clearInterval(game.timerInterval);
-                    triggerFailure("時間到！");
-                }
-            }, 100);
-        }
-
-        function handleKeyUp(e) {
-            if (e.key === 'Enter') submitAnswer();
-        }
-
-        function submitAnswer() {
-            if (game.isFrozen) return;
-
-            const userAns = parseInt(document.getElementById('answer-input').value);
-            if (isNaN(userAns)) return;
-
-            if (userAns === game.ans) {
-                clearInterval(game.timerInterval);
-                game.score += 10;
-                game.level = Math.floor(game.score / 30) + 1; // 每答對3題升一級
-                
-                document.getElementById('score').innerText = game.score;
-                document.getElementById('level').innerText = game.level;
-
-                if (game.level > 6) {
-                    endGame();
-                } else {
-                    generateNewQuestion();
-                }
-            } else {
-                clearInterval(game.timerInterval);
-                triggerFailure("答案不正確！");
-            }
-        }
-
-        function triggerFailure(reason) {
-            game.isFrozen = true;
-            document.getElementById('answer-input').disabled = true;
-
-            // 建立圖形化教學
-            document.getElementById('tutorial-desc').innerHTML = `
-                <b>${game.num1} × ${game.num2}</b> 代表有 <b>${game.num1} 排</b> 圓點，而每排都有 <b>${game.num2} 個</b>。<br>
-                將它們全部數完，總共會有 <b>${game.ans}</b> 個點點喔！
-            `;
-
-            const grid = document.getElementById('dot-grid');
-            grid.innerHTML = '';
-            grid.style.gridTemplateRows = `repeat(${game.num1}, 14px)`;
-            grid.style.gridTemplateColumns = `repeat(${game.num2}, 14px)`;
-
-            for (let i = 0; i < game.num1 * game.num2; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'dot';
-                grid.appendChild(dot);
+            if (game.op === '+') {
+                game.num1 = n1; game.num2 = n2;
+                game.ans = n1 + n2;
+            } else if (game.op === '-') {
+                game.num1 = n1; game.num2 = n2;
+                game.ans = n1 - n2;
+            } else if (game.op === '*') {
+                game.num1 = n1; game.num2 = n2;
+                game.ans = n1 * n2;
+            } else if (game.op === '/') {
+                // 為了確保除法答案必為整數：先生成商(n2)與除數(n1)，再相乘得到被除數(num1)
+                let quotient = n2; 
+                let divisor = n1;
+                game.num1 = divisor * quotient;
+                game.num2 = divisor;
+                game.ans = quotient;
             }
 
-            document.getElementById('tutorial-area').style.display = 'block';
-        }
-
-        function nextQuestion() {
-            // 如果玩家的分數夠高，可以繼續；如果想改成答錯就結束，可以在這裡調用 endGame()
+            // 轉換顯示符號
+            let opStr = game.op;
+            if (game.op === '*') opStr = '×';
+            if (game.op === '/') opStr = '÷';
 
