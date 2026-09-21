@@ -26,7 +26,7 @@
         }
         .screen { display: none; }
         .active { display: block; }
-        h1 { color: #60a5fa; }
+        h1 { color: #60a5fa; margin-bottom: 10px; }
         .hud {
             display: flex; justify-content: space-between; background: #0f172a;
             padding: 10px 15px; border-radius: 10px; margin-bottom: 20px;
@@ -103,12 +103,10 @@
         <!-- 遊戲結束畫面 -->
         <div id="game-over-screen" class="screen">
             <h1>🏆 挑戰結束！</h1>
-            <p style="color: #94a3b8;">成功掌握有向數的正負邏輯！</p>
             <h2 style="font-size: 2rem; margin: 20px 0;">最終得分: <span id="final-score" style="color:var(--success);">0</span></h2>
             <button onclick="resetGame()">再玩一次</button>
         </div>
     </div>
-
     <script>
         let game = {
             score: 0, level: 1, num1: 0, num2: 0, op: '', ans: 0,
@@ -160,6 +158,7 @@
             } else if (game.op === '*') {
                 game.num1 = n1; game.num2 = n2; game.ans = n1 * n2;
             } else if (game.op === '/') {
+                // 保證除法為整數
                 game.num1 = n1 * n2; game.num2 = n1; game.ans = n2;
             }
 
@@ -210,11 +209,7 @@
                 document.getElementById('score').innerText = game.score;
                 document.getElementById('level').innerText = game.level;
 
-                if (game.level > 5) {
-                    endGame();
-                } else {
-                    generateNewQuestion();
-                }
+                if (game.level > 5) endGame(); else generateNewQuestion();
             } else {
                 clearInterval(game.timerInterval);
                 triggerFailure();
@@ -230,3 +225,53 @@
 
             if (game.op === '+' || game.op === '-') {
                 showLine = true;
+                if (game.op === '+') {
+                    desc = game.num2 > 0 ? `加正數等於「向右移」。從 <b>${game.num1}</b> 開始，向右移 <b>${game.num2}</b> 格，到達 <b>${game.ans}</b>。` : `加負數等於「減去正數（向左移）」。從 <b>${game.num1}</b> 開始，向左移 <b>${Math.abs(game.num2)}</b> 格，到達 <b>${game.ans}</b>。`;
+                } else {
+                    desc = game.num2 > 0 ? `減去正數等於「向左移」。從 <b>${game.num1}</b> 開始，向左移 <b>${game.num2}</b> 格，到達 <b>${game.ans}</b>。` : `負負得正！減去負數等於「加上正數（向右移）」。從 <b>${game.num1}</b> 開始，向右移 <b>${Math.abs(game.num2)}</b> 格，到達 <b>${game.ans}</b>。`;
+                }
+            } else {
+                showLine = false;
+                let ruleText = (game.num1 * game.num2 > 0) ? "「同號得正」" : "「異號得負」";
+                desc = `乘除法規則：<b>${ruleText}</b>。<br>符號相同結果為正，不同則為負。正確答案是 <b>${game.ans}</b>。`;
+            }
+
+            document.getElementById('tutorial-desc').innerHTML = desc;
+
+            const lineSection = document.getElementById('number-line-section');
+            if (showLine) {
+                lineSection.style.display = 'block';
+                buildNumberLine(game.num1, game.ans);
+            } else {
+                lineSection.style.display = 'none';
+            }
+
+            document.getElementById('tutorial-area').style.display = 'block';
+        }
+
+        function buildNumberLine(start, end) {
+            const ui = document.getElementById('number-line-ui');
+            ui.querySelectorAll('.line-node').forEach(n => n.remove());
+
+            let minVal = Math.min(start, end, 0) - 2;
+            let maxVal = Math.max(start, end, 0) + 2;
+
+            for (let i = minVal; i <= maxVal; i++) {
+                const node = document.createElement('div');
+                node.className = 'line-node';
+                node.innerText = i;
+                
+                if (i === 0) node.classList.add('zero-point');
+                if (i === start) node.classList.add('start-point');
+                if (i === end) node.classList.add('end-point');
+
+                ui.appendChild(node);
+            }
+        }
+
+        function nextQuestion() { generateNewQuestion(); }
+        function endGame() { clearInterval(game.timerInterval); showScreen('game-over-screen'); document.getElementById('final-score').innerText = game.score; }
+        function resetGame() { startGame(); }
+    </script>
+</body>
+</html>
